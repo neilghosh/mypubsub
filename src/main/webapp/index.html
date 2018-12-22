@@ -1,0 +1,54 @@
+<h1>Publisher Subscription Test Page</h1>
+
+<label for="topic">Topic</label>
+<input id="topic" type="text" value="topic1">
+<label for="message">Message</label>
+<input id="message" type="text" value="message1">
+<input type="submit" value="Publish" onclick="publish()">
+<br>
+<label for="topics">Topics</label>
+<input id="topics" type="text" value="topic1,topic2">
+<input type="submit" value="subscribe" onclick="subscribe()">
+<br>
+<label for="subscription">Subscription Id</label>
+<input id="subscription" type="text" value="">
+<input type="submit" value="pull" onclick="pull()">
+
+<script type="text/javascript">
+    function publish() {
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                alert(xhr.response);
+            }
+        }
+        var topic = document.getElementById('topic').value;
+        var message = document.getElementById('message').value;
+        xhr.open('post', '/'+topic+'/publish', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+        xhr.send(message);
+    }
+    function subscribe() {
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                alert(xhr.response);
+            }
+        }
+        var topics = document.getElementById('topics').value.split(/\s*,\s*/);
+        xhr.open('post', '/subscribe', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify(topics));
+    }
+    function pull() {
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                alert(xhr.response);
+            }
+        }
+        var subscription_id = document.getElementById('subscription').value;
+        xhr.open('get', '/'+subscription_id+'/pull', true);
+        xhr.send();
+    }
+</script>
