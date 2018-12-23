@@ -65,7 +65,7 @@ public class PubSubService {
   private void persistsTopic() {
     ObjectOutputStream oos;
     try {
-      oos = new ObjectOutputStream(new FileOutputStream("TOPICS_DATA_FILE"));
+      oos = new ObjectOutputStream(new FileOutputStream(TOPICS_DATA_FILE));
       oos.writeObject(subscribersTopicMap);
       oos.close();
     } catch (IOException e) {
@@ -77,7 +77,7 @@ public class PubSubService {
     ObjectInputStream ois;
     HashMap<String, Set<String>> map;
     try {
-      ois = new ObjectInputStream(new FileInputStream("TOPICS_DATA_FILE"));
+      ois = new ObjectInputStream(new FileInputStream(TOPICS_DATA_FILE));
       map = (HashMap<String, Set<String>>) ois.readObject();
       LOGGER.info("Found Topics "+map.size());
       ois.close();
