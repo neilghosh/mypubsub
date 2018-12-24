@@ -1,11 +1,9 @@
 package pubsub;
 
-import java.io.Serializable;
 import java.util.UUID;
 
-public class Message implements Serializable {
+public class Message {
 
-  private static final long serialversionUID = 129348938L;
   public static final String DATA_SEPARATOR = ",";
 
   private String topic;
@@ -13,20 +11,6 @@ public class Message implements Serializable {
   private String messageId;
 
   public Message() {
-  }
-
-  /**
-   * @return the messageId
-   */
-  public String getMessageId() {
-    return messageId;
-  }
-
-  /**
-   * @param messageId the messageId to set
-   */
-  private void setMessageId(String messageId) {
-    this.messageId = messageId;
   }
 
   public Message(String topic, String payload) {
@@ -37,6 +21,14 @@ public class Message implements Serializable {
     this.topic = topic;
     this.payload = payload;
     this.messageId = id;
+  }
+
+  public String getMessageId() {
+    return messageId;
+  }
+
+  private void setMessageId(String messageId) {
+    this.messageId = messageId;
   }
 
   public String getTopic() {
@@ -57,5 +49,10 @@ public class Message implements Serializable {
 
   public String toString() {
     return messageId + DATA_SEPARATOR + topic + DATA_SEPARATOR + payload;
+  }
+
+  public static Message fromString(String line) {
+    String[] split = line.split(Message.DATA_SEPARATOR);
+    return new Message(split[1], split[2], split[0]);
   }
 }

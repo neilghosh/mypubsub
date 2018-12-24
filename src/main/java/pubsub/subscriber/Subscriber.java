@@ -36,15 +36,21 @@ public class Subscriber {
   }
 
   public Subscriber(String id, BlockingQueue<Message> messages) {
-    this.firstAckLine = this.firstMessageLine = messages.size() == 0;
     this.subscriberId = id;
     this.subscriberMessages = messages;
+    setupPersistance(id, messages);
+  }
+
+  // Sets up the files which backs up the subscription messages and acknowledged messages 
+  // which later helps recovering the subscriptions
+  private void setupPersistance(String id, BlockingQueue<Message> messages) {
+    // Used for markking the 1st line of file in which case new line is not required
+    this.firstAckLine = this.firstMessageLine = messages.size() == 0;
     try {
       messageLog = new BufferedWriter(new FileWriter(MESSAGE_LOG_PREFIX + this.subscriberId, true));
       ackLog = new BufferedWriter(new FileWriter(ACK_LOG_PREFIX + this.subscriberId, true));
     } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      LOGGER.severe("Unable to setup message logs " + e.getMessage());
     }
   }
 
@@ -52,18 +58,8 @@ public class Subscriber {
     return this.subscriberId;
   }
 
-  public List<Message> getSubscriberMessages() {
-    List<Message> messages = Lists.newArrayList();
-    while (!subscriberMessages.isEmpty()) {
-      Message message = subscriberMessages.poll();
-      messages.add(message);
-    }
-    ackMessages(messages);
-    return messages;
-  }
-
   public boolean addToSubscriberMessages(Message message) {
-    writeToFile(message);
+    persistMessage(message);
     return this.subscriberMessages.offer(message);
   }
 
@@ -72,67 +68,77 @@ public class Subscriber {
     pubSubService.addSubscriber(topic, this);
   }
 
-  // Unsubscribe subscriber with PubSubService for a topic
-  public void unSubscribe(String topic, PubSubService pubSubService) {
-    pubSubService.removeSubscriber(topic, this);
+  // Fetches all current messages from subscriptions
+  public List<Message> pullSubscriberMessages() {
+    List<Message> messages = Lists.newArrayList();
+    subscriberMessages.drainTo(messages);
+    ackMessages(messages);
+    return messages;
   }
 
-  private synchronized void writeToFile(Message message) {
-    try {
-      if(firstMessageLine) {
-        firstMessageLine = false;
-      } else {
-        this.messageLog.newLine();
-      }
-      this.messageLog.write(message.toString());
-      this.messageLog.flush();
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
+  // Writes all the messages recieved by the subscription into a append only log.
+  private synchronized void persistMessage(Message message) {
+    writeToFile(firstMessageLine, Lists.newArrayList(message.toString()), messageLog);
   }
 
+  //Writes a log with acknowledged messages i.e. messages which are read by the user
+  //So that it can later know the pending messages.
   private synchronized void ackMessages(List<Message> messages) {
+    List<String> lines = Lists.newArrayList();
+    for (Message message : messages) {
+      lines.add(message.getMessageId());
+    }
+    writeToFile(firstAckLine, lines, ackLog);
+  }
+
+  private synchronized void writeToFile(boolean isFirstLines, List<String> lines, BufferedWriter writter) {
     try {
-      for (Message message : messages) {
-        if(firstAckLine){
-          firstAckLine = false;
+      for (String line : lines) {
+        if (isFirstLines) {
+          isFirstLines = false;
         } else {
-          ackLog.newLine();
+          writter.newLine();
         }
-        ackLog.write(message.getMessageId());
+        writter.write(line);
       }
-      ackLog.flush();
+      writter.flush();
     } catch (IOException e) {
-      e.printStackTrace();
+      LOGGER.severe("Unable to write to file " + e.getMessage());
     }
   }
 
-  public static Subscriber loadFromFile(String id) throws IOException {
-    BufferedReader messageFileReader = new BufferedReader(new FileReader(MESSAGE_LOG_PREFIX + id));
-    BufferedReader ackFileReader = new BufferedReader(new FileReader(ACK_LOG_PREFIX + id));
-
-    String lastAckMessage = null, sCurrentLine = null;
-    while ((sCurrentLine = ackFileReader.readLine()) != null) {
-      lastAckMessage = sCurrentLine;
-    }
-    ackFileReader.close();
-    LOGGER.info("Last acknowledged message id :" + lastAckMessage);
-
-    boolean ackFound = lastAckMessage == null;
+  // Load subscription (including its pending messages) from backup file
+  // The mechanism is - out of all messages received by the subscription 
+  // find the messages which are not acknowledged yet.
+  public static Subscriber loadFromFile(String id) {
     List<Message> messages = Lists.newArrayList();
 
-    while ((sCurrentLine = messageFileReader.readLine()) != null) {
-      if (!ackFound) {
-        ackFound = sCurrentLine.startsWith(lastAckMessage);
-        LOGGER.info("last ack Message found  :" + lastAckMessage);
-      } else {
-        LOGGER.info("Adding pending message to queue  :" + sCurrentLine);
-        String[] split = sCurrentLine.split(Message.DATA_SEPARATOR);
-        messages.add(new Message(split[1], split[2], split[0]));
+    try {
+      BufferedReader messageFileReader = new BufferedReader(new FileReader(MESSAGE_LOG_PREFIX + id));
+      BufferedReader ackFileReader = new BufferedReader(new FileReader(ACK_LOG_PREFIX + id));
+
+      String lastAckMessage = null, sCurrentLine = null;
+      while ((sCurrentLine = ackFileReader.readLine()) != null) {
+        lastAckMessage = sCurrentLine;
       }
+      ackFileReader.close();
+      LOGGER.info("Last acknowledged message id :" + lastAckMessage);
+
+      boolean ackFound = lastAckMessage == null;
+
+      while ((sCurrentLine = messageFileReader.readLine()) != null) {
+        if (!ackFound) {
+          ackFound = sCurrentLine.startsWith(lastAckMessage);
+          LOGGER.info("last ack Message found  :" + lastAckMessage);
+        } else {
+          LOGGER.info("Adding pending message to queue  :" + sCurrentLine);
+          messages.add(Message.fromString(sCurrentLine));
+        }
+      }
+      messageFileReader.close();
+    } catch (IOException e) {
+      LOGGER.severe("unable to load subscription from file" + id);
     }
-    messageFileReader.close();
     LOGGER.info("Restoring subscription with queue size   :" + messages.size());
     return new Subscriber(id, new LinkedBlockingQueue<>(messages));
   }

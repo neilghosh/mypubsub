@@ -24,88 +24,76 @@ public class PubSubService {
   private final static Logger LOGGER = Logger.getLogger(PubSubService.class.getName());
   public static final String TOPICS_DATA_FILE = "data/topics.ser";
 
-  Map<String, Subscriber> subscribersById = new HashMap<>();
+  Map<String, Subscriber> subscribersById;
 
   // Keeps set of subscriber topic wise, using set to prevent duplicates
   Map<String, Set<String>> subscribersTopicMap;
 
   // Holds messages published by publishers
-  BlockingQueue<Message> messagesQueue = new LinkedBlockingQueue<Message>();
+  BlockingQueue<Message> messagesQueue;
 
   public PubSubService() {
     this.subscribersTopicMap = getTopicsFromFile();
+    this.subscribersById = new HashMap<>();
+    this.messagesQueue = new LinkedBlockingQueue<Message>();
   }
-
 
   // Adds message sent by publisher to queue
   public void addMessageToQueue(Message message) {
     messagesQueue.add(message);
-    LOGGER.info("Length of message queue is " + messagesQueue.size());
+    LOGGER.info("Message added. Length of queue is " + messagesQueue.size());
   }
 
   // Add a new Subscriber for a topic
   public void addSubscriber(String topic, Subscriber subscriber) {
-    LOGGER.info("Subscriber id " + subscriber.getSubscriberId() + " to topic " + topic);
+    LOGGER.info("Adding subscriber id " + subscriber.getSubscriberId() + " to topic " + topic);
     subscribersById.put(subscriber.getSubscriberId(), subscriber);
 
     if (subscribersTopicMap.containsKey(topic)) {
-      subscribersById.put(subscriber.getSubscriberId(), subscriber);
       Set<String> subscriberIds = subscribersTopicMap.get(topic);
       subscriberIds.add(subscriber.getSubscriberId());
       subscribersTopicMap.put(topic, subscriberIds);
     } else {
-      subscribersById.put(subscriber.getSubscriberId(), subscriber);
       Set<String> subscriberIds = new HashSet<>();
       subscriberIds.add(subscriber.getSubscriberId());
       subscribersTopicMap.put(topic, subscriberIds);
     }
-    persistsTopic();
+    persistsTopicSubscriptionMappings();
   }
 
-  private void persistsTopic() {
-    ObjectOutputStream oos;
+  private void persistsTopicSubscriptionMappings() {
     try {
-      oos = new ObjectOutputStream(new FileOutputStream(TOPICS_DATA_FILE));
-      oos.writeObject(subscribersTopicMap);
-      oos.close();
+      ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(TOPICS_DATA_FILE));
+      stream.writeObject(subscribersTopicMap);
+      stream.close();
     } catch (IOException e) {
-      e.printStackTrace();
+      LOGGER.severe("Unable to persist topic mappings " + e.getMessage());
     }
   }
 
   private Map<String, Set<String>> getTopicsFromFile() {
-    ObjectInputStream ois;
-    HashMap<String, Set<String>> map;
+
+    HashMap<String, Set<String>> subscribersTopicMap;
     try {
-      ois = new ObjectInputStream(new FileInputStream(TOPICS_DATA_FILE));
-      map = (HashMap<String, Set<String>>) ois.readObject();
-      LOGGER.info("Found Topics "+map.size());
-      ois.close();
+      ObjectInputStream stream = new ObjectInputStream(new FileInputStream(TOPICS_DATA_FILE));
+      subscribersTopicMap = (HashMap<String, Set<String>>) stream.readObject();
+      stream.close();
+      LOGGER.info("Found Topics " + subscribersTopicMap.size());
     } catch (IOException | ClassNotFoundException e) {
-      e.printStackTrace();
+      LOGGER.severe("Unable to load topic mappings " + e.getMessage());
       return new HashMap<String, Set<String>>();
     }
-    return map;
+    return subscribersTopicMap;
   }
 
-  // Remove an existing subscriber for a topic
-  public void removeSubscriber(String topic, Subscriber subscriber) {
-
-    if (subscribersTopicMap.containsKey(topic)) {
-      Set<String> subscriberIds = subscribersTopicMap.get(topic);
-      subscriberIds.remove(subscriber.getSubscriberId());
-      subscribersTopicMap.put(topic, subscriberIds);
-      subscribersById.remove(subscriber.getSubscriberId());
-    }
-  }
-
-  // Broadcast new messages added in queue to All subscribers of the topic.
+  // Asynchrounously broadcast new messages added in queue to All subscribers of
+  // the topic.
   // messagesQueue will be empty after broadcasting
   @Async
   public void broadcast() {
-    LOGGER.info("Broadcasting messages");
+    LOGGER.info("Broadcasting messages to subscriptions");
     if (messagesQueue.isEmpty()) {
-      System.out.println("No messages from publishers to display");
+      LOGGER.warning("No messages from publishers to display");
     } else {
       while (!messagesQueue.isEmpty()) {
         Message message = messagesQueue.poll();
@@ -120,7 +108,7 @@ public class PubSubService {
             Subscriber subscriber = subscribersById.get(subscriberId);
             // add broadcasted message to subscribers message queue
             if (!subscriber.addToSubscriberMessages(message)) {
-              LOGGER.severe("Queue Full");
+              LOGGER.severe("Queue Full for subscription " + subscriberId);
             }
           }
         }
@@ -128,20 +116,12 @@ public class PubSubService {
     }
   }
 
-  // Remove an existing subscriber for a topic
   public Subscriber getSubscriberById(String id) {
     Subscriber subscriber = subscribersById.get(id);
     if (subscriber == null) {
       LOGGER.warning("Subscriber not found in memory , trying to local from file");
-      try {
-        subscriber = Subscriber.loadFromFile(id);
-        subscribersById.put(id, subscriber);
-        
-      } catch (IOException e) {
-        LOGGER.severe("unable to local from file");
-        e.printStackTrace();
-        return null;
-      }
+      subscriber = Subscriber.loadFromFile(id);
+      subscribersById.put(id, subscriber);
     }
     return subscriber;
   }
