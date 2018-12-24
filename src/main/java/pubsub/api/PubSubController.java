@@ -7,9 +7,11 @@ import pubsub.publisher.Publisher;
 import pubsub.service.PubSubService;
 import pubsub.subscriber.Subscriber;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,15 +25,24 @@ public class PubSubController {
   @Autowired
   PubSubService pubSubService;
 
-  @RequestMapping(value = "{topic}/publish", method = RequestMethod.POST)
-  public String publish(@PathVariable("topic") String topic, @RequestBody String message) {
-    Publisher publisher = new Publisher();
+
+  @RequestMapping(value = "/registerPublisher", method = RequestMethod.POST)
+  public String addPublisher(@RequestBody String[] topics) {
+    Publisher publisher = new Publisher(Sets.newHashSet(topics));
+    publisher.registerPublisher(pubSubService);
+    return publisher.getPublisherId();
+  }
+
+  @RequestMapping(value = "{publisherId}/publish", method = RequestMethod.POST)
+  public String publish(@PathVariable("publisherId") String publisherId, @RequestBody String message) {
+    Publisher publisher = pubSubService.getPublisherById(publisherId);
 
     // Declare Messages and Publish Messages to PubSubService
-    Message pubSubMessage = new Message(topic, message);
-
-    publisher.publish(pubSubMessage, pubSubService);
-    return "Published message " + pubSubMessage.getPayload();
+    for(String topic: publisher.getTopics()){
+      Message pubSubMessage = new Message(topic, message);
+      publisher.publish(pubSubMessage, pubSubService);
+    }
+    return "Published messages to " + message;
   }
 
   /**

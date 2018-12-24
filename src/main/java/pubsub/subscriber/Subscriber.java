@@ -41,7 +41,8 @@ public class Subscriber {
     setupPersistance(id, messages);
   }
 
-  // Sets up the files which backs up the subscription messages and acknowledged messages 
+  // Sets up the files which backs up the subscription messages and acknowledged
+  // messages
   // which later helps recovering the subscriptions
   private void setupPersistance(String id, BlockingQueue<Message> messages) {
     // Used for markking the 1st line of file in which case new line is not required
@@ -78,20 +79,29 @@ public class Subscriber {
 
   // Writes all the messages recieved by the subscription into a append only log.
   private synchronized void persistMessage(Message message) {
-    writeToFile(firstMessageLine, Lists.newArrayList(message.toString()), messageLog);
+    this.firstMessageLine = writeToFile(this.firstMessageLine, Lists.newArrayList(message.toString()), this.messageLog);
   }
 
-  //Writes a log with acknowledged messages i.e. messages which are read by the user
-  //So that it can later know the pending messages.
+  // Writes a log with acknowledged messages i.e. messages which are read by the
+  // user
+  // So that it can later know the pending messages.
   private synchronized void ackMessages(List<Message> messages) {
     List<String> lines = Lists.newArrayList();
     for (Message message : messages) {
       lines.add(message.getMessageId());
     }
-    writeToFile(firstAckLine, lines, ackLog);
+    this.firstAckLine = writeToFile(this.firstAckLine, lines, ackLog);
   }
 
-  private synchronized void writeToFile(boolean isFirstLines, List<String> lines, BufferedWriter writter) {
+  /**
+   * 
+   * @param isFirstLines If first line of the file has been written 
+   * We need this to know if subsequent lines in the file needs a new line 
+   * @param lines Lines to be written
+   * @param writter The file's bufferwritter 
+   * @return returns if the first line of the file has been written
+   */
+  private synchronized boolean writeToFile(boolean isFirstLines, List<String> lines, BufferedWriter writter) {
     try {
       for (String line : lines) {
         if (isFirstLines) {
@@ -105,10 +115,11 @@ public class Subscriber {
     } catch (IOException e) {
       LOGGER.severe("Unable to write to file " + e.getMessage());
     }
+    return isFirstLines;
   }
 
   // Load subscription (including its pending messages) from backup file
-  // The mechanism is - out of all messages received by the subscription 
+  // The mechanism is - out of all messages received by the subscription
   // find the messages which are not acknowledged yet.
   public static Subscriber loadFromFile(String id) {
     List<Message> messages = Lists.newArrayList();

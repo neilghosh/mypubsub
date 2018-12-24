@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -17,12 +18,16 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import pubsub.Message;
+import pubsub.publisher.Publisher;
 import pubsub.subscriber.Subscriber;
 
 @Component
 public class PubSubService {
   private final static Logger LOGGER = Logger.getLogger(PubSubService.class.getName());
   public static final String TOPICS_DATA_FILE = "data/topics.ser";
+
+  // Keeps publisher to toipics mapping
+  Map<String, Publisher> publishersById;
 
   Map<String, Subscriber> subscribersById;
 
@@ -33,13 +38,20 @@ public class PubSubService {
   BlockingQueue<Message> messagesQueue;
 
   public PubSubService() {
+    this.publishersById = new HashMap<String, Publisher>();
     this.subscribersTopicMap = getTopicsFromFile();
     this.subscribersById = new HashMap<>();
     this.messagesQueue = new LinkedBlockingQueue<Message>();
   }
 
+  public void addPublisher(Publisher publisher) {
+    LOGGER.info("Registered Publisher " + publisher.getPublisherId());
+    publishersById.put(publisher.getPublisherId(), publisher);
+  }
+
   // Adds message sent by publisher to queue
   public void addMessageToQueue(Message message) {
+    LOGGER.info("Adding message to topic " + message.getPayload()+" -- "+ message.getTopic());
     messagesQueue.add(message);
     LOGGER.info("Message added. Length of queue is " + messagesQueue.size());
   }
@@ -124,5 +136,9 @@ public class PubSubService {
       subscribersById.put(id, subscriber);
     }
     return subscriber;
+  }
+
+  public Publisher getPublisherById(String publisherId) {
+    return publishersById.get(publisherId);
   }
 }

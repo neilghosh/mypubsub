@@ -1,7 +1,11 @@
 <h1>Publisher Subscription Test Page</h1>
 
-<label for="topic">Topic</label>
-<input id="topic" type="text" value="topic1">
+<label for="publisher_topics">Topic</label>
+<input id="publisher_topics" type="text" value="topic1,topic2">
+<input type="submit" value="Register Publisher" onclick="registerPublisher()">
+<br>
+<label for="publisher_id">Publisher Id</label>
+<input id="publisher_id" type="text" value="">
 <label for="message">Message</label>
 <input id="message" type="text" value="message1">
 <input type="submit" value="Publish" onclick="publish()">
@@ -15,6 +19,18 @@
 <input type="submit" value="pull" onclick="pull()">
 
 <script type="text/javascript">
+    function registerPublisher() {
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                alert(xhr.response);
+            }
+        }
+        var topics = document.getElementById('publisher_topics').value.split(/\s*,\s*/);
+        xhr.open('post', '/registerPublisher', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify(topics));
+    }
     function publish() {
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function () {
@@ -22,9 +38,9 @@
                 alert(xhr.response);
             }
         }
-        var topic = document.getElementById('topic').value;
+        var publisher_id = document.getElementById('publisher_id').value;
         var message = document.getElementById('message').value;
-        xhr.open('post', '/'+topic+'/publish', true);
+        xhr.open('post', '/'+publisher_id+'/publish', true);
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
         xhr.send(message);
     }
