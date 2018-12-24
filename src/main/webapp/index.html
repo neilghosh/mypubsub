@@ -1,80 +1,143 @@
-<h1>Publisher Subscription Test Page</h1>
+<head>
+  <style>
+    table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+  }
+  th, td {
+    padding: 5px;
+    text-align: left;
+  }
+  * {
+      box-sizing: border-box;
+  }
+  .column {
+    float: left;
+    width: 50%;
+    padding: 10px;
+  }
+  .row:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+  </style>
+</head>
 
-<label for="publisher_topics">Topic</label>
-<input id="publisher_topics" type="text" value="topic1,topic2">
-<input type="submit" value="Register Publisher" onclick="registerPublisher()">
-<br>
-<label for="publisher_id">Publisher Id</label>
-<input id="publisher_id" type="text" value="">
-<label for="message">Message</label>
-<input id="message" type="text" value="message1">
-<input type="submit" value="Publish" onclick="publish()">
-<br>
-<label for="topics">Topics</label>
-<input id="topics" type="text" value="topic1,topic2">
-<input type="submit" value="subscribe" onclick="subscribe()">
-<br>
-<label for="subscription">Subscription Id</label>
-<input id="subscription" type="text" value="">
-<input type="submit" value="pull" onclick="pull()">
+<body>
+  <h1 align="center">Publisher Subscription Test Page</h1>
+  <hr>
+  <div style="text-align: center" id="responseArea"></div>
+  <div class="row">
+    <div class="column">
+      <label for="publisher_topics">Topic</label>
+      <input id="publisher_topics" type="text" value="topic1,topic2">
+      <input type="submit" value="Register Publisher" onclick="registerPublisher()">
+      <br>
+      <!-- <label for="publisher_id">Publisher Id</label>
+      <input id="publisher_id" type="text" value=""> -->
+      <label for="message">Message</label>
+      <input id="message" size="100"  type="text" value="message1">
+      <!-- <input type="submit" value="Publish" onclick="publish(document.getElementById('publisher_id').value)"> -->
+      <hr>
+      <table id="publishers">
+        <caption>Registered Publishers</caption>
+        <tr>
+          <th>Publisher Id</th>
+          <th>Publish Message</th>
+        </tr>
+      </table>
+      <br>
+    </div>
+    <div class="column">
+      <label for="topics">Topics</label>
+      <input id="topics" type="text" value="topic1,topic2">
+      <input type="submit" value="Subscribe" onclick="subscribe()">
+      <br>
+      <!-- <label for="subscription">Subscription Id</label>
+      <input id="subscription" type="text" value="">
+      <input type="submit" value="Pull Messages" onclick="pull(document.getElementById('subscription').value)"> -->
+      <hr>
+      <table id="subscribers">
+        <caption>Registered Subscribers</caption>
+        <tr>
+          <th>Subscription Id</th>
+          <th>Pull Message</th>
+        </tr>
+      </table>
+    </div>
+  </div>
 
-<script type="text/javascript">
-  function registerPublisher() {
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4) {
-        alert(xhr.response);
+  <script type="text/javascript">
+    function registerPublisher() {
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          //alert(xhr.response);
+          var table = document.getElementById("publishers");
+          var row = table.insertRow(-1);
+          var cell1 = row.insertCell(0);
+          var cell2 = row.insertCell(1);
+          cell1.innerHTML = xhr.response;
+          cell2.innerHTML = '<input value="Publish" type="button" onClick="publish(\'' + xhr.response + '\')" />';
+        }
       }
+      var topics = document.getElementById('publisher_topics').value.split(/\s*,\s*/);
+      sendPostRequest(xhr, '/registerPublisher', JSON.stringify(topics));
     }
-    var topics = document.getElementById('publisher_topics').value.split(/\s*,\s*/);
-    sendPostRequest(xhr, '/registerPublisher', JSON.stringify(topics));
-  }
 
-  function publish() {
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4) {
-        alert(xhr.response);
+    function publish(publisher_id) {
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          //alert(xhr.response);
+          document.getElementById('responseArea').innerHTML = xhr.response;
+        }
       }
+      //var publisher_id = document.getElementById('publisher_id').value;
+      var message = document.getElementById('message').value;
+      sendPostRequest(xhr, '/' + publisher_id + '/publish', message);
     }
-    var publisher_id = document.getElementById('publisher_id').value;
-    var message = document.getElementById('message').value;
-    // xhr.open('post', '/' + publisher_id + '/publish', true);
-    // xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
-    // xhr.send(message);
-    sendPostRequest(xhr, '/' + publisher_id + '/publish', message);
-  }
 
-  function subscribe() {
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4) {
-        alert(xhr.response);
+    function subscribe() {
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          //alert(xhr.response);
+          var table = document.getElementById("subscribers");
+          var row = table.insertRow(-1);
+          var cell1 = row.insertCell(0);
+          var cell2 = row.insertCell(1);
+          cell1.innerHTML = xhr.response;
+          cell2.innerHTML = '<input value="Pull Message" type="button" onClick="pull(\'' + xhr.response + '\')" />';
+
+        }
       }
+      var topics = document.getElementById('topics').value.split(/\s*,\s*/);
+      sendPostRequest(xhr, '/subscribe', JSON.stringify(topics));
     }
-    var topics = document.getElementById('topics').value.split(/\s*,\s*/);
-    sendPostRequest(xhr, '/subscribe', JSON.stringify(topics));
-  }
 
-  function pull() {
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4) {
-        alert(xhr.response);
+    function pull(subscription_id) {
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          //alert(xhr.response);
+          document.getElementById('responseArea').innerHTML = 'Pulled Messages<br>'+xhr.response;
+        }
       }
+      //var subscription_id = document.getElementById('subscription').value;
+      sendGetRequest(xhr, '/' + subscription_id + '/pull');
     }
-    var subscription_id = document.getElementById('subscription').value;
-    sendGetRequest(xhr, '/' + subscription_id + '/pull');
-  }
 
-  function sendGetRequest(xhr, url) {
-    xhr.open('get', url, true);
-    xhr.send();
-  }
+    function sendGetRequest(xhr, url) {
+      xhr.open('get', url, true);
+      xhr.send();
+    }
 
-  function sendPostRequest(xhr, url, payload) {
-    xhr.open('post', url, true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.send(payload);
-  }
-</script>
+    function sendPostRequest(xhr, url, payload) {
+      xhr.open('post', url, true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send(payload);
+    }
+  </script>
+</body>
