@@ -19,52 +19,62 @@
 <input type="submit" value="pull" onclick="pull()">
 
 <script type="text/javascript">
-    function registerPublisher() {
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-                alert(xhr.response);
-            }
-        }
-        var topics = document.getElementById('publisher_topics').value.split(/\s*,\s*/);
-        xhr.open('post', '/registerPublisher', true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.send(JSON.stringify(topics));
+  function registerPublisher() {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        alert(xhr.response);
+      }
     }
-    function publish() {
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-                alert(xhr.response);
-            }
-        }
-        var publisher_id = document.getElementById('publisher_id').value;
-        var message = document.getElementById('message').value;
-        xhr.open('post', '/'+publisher_id+'/publish', true);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
-        xhr.send(message);
+    var topics = document.getElementById('publisher_topics').value.split(/\s*,\s*/);
+    sendPostRequest(xhr, '/registerPublisher', JSON.stringify(topics));
+  }
+
+  function publish() {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        alert(xhr.response);
+      }
     }
-    function subscribe() {
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-                alert(xhr.response);
-            }
-        }
-        var topics = document.getElementById('topics').value.split(/\s*,\s*/);
-        xhr.open('post', '/subscribe', true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.send(JSON.stringify(topics));
+    var publisher_id = document.getElementById('publisher_id').value;
+    var message = document.getElementById('message').value;
+    // xhr.open('post', '/' + publisher_id + '/publish', true);
+    // xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+    // xhr.send(message);
+    sendPostRequest(xhr, '/' + publisher_id + '/publish', message);
+  }
+
+  function subscribe() {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        alert(xhr.response);
+      }
     }
-    function pull() {
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-                alert(xhr.response);
-            }
-        }
-        var subscription_id = document.getElementById('subscription').value;
-        xhr.open('get', '/'+subscription_id+'/pull', true);
-        xhr.send();
+    var topics = document.getElementById('topics').value.split(/\s*,\s*/);
+    sendPostRequest(xhr, '/subscribe', JSON.stringify(topics));
+  }
+
+  function pull() {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        alert(xhr.response);
+      }
     }
+    var subscription_id = document.getElementById('subscription').value;
+    sendGetRequest(xhr, '/' + subscription_id + '/pull');
+  }
+
+  function sendGetRequest(xhr, url) {
+    xhr.open('get', url, true);
+    xhr.send();
+  }
+
+  function sendPostRequest(xhr, url, payload) {
+    xhr.open('post', url, true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(payload);
+  }
 </script>

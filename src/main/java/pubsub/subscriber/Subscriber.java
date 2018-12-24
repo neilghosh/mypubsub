@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.common.collect.Lists;
@@ -74,6 +75,7 @@ public class Subscriber {
     List<Message> messages = Lists.newArrayList();
     subscriberMessages.drainTo(messages);
     ackMessages(messages);
+    LOGGER.log(Level.INFO, "Pulled {0} messages", messages.size());
     return messages;
   }
 
@@ -91,14 +93,15 @@ public class Subscriber {
       lines.add(message.getMessageId());
     }
     this.firstAckLine = writeToFile(this.firstAckLine, lines, ackLog);
+    LOGGER.log(Level.INFO, "Acknowledged {0} messages", lines.size());
   }
 
   /**
    * 
-   * @param isFirstLines If first line of the file has been written 
-   * We need this to know if subsequent lines in the file needs a new line 
-   * @param lines Lines to be written
-   * @param writter The file's bufferwritter 
+   * @param isFirstLines If first line of the file has been written We need this
+   *                     to know if subsequent lines in the file needs a new line
+   * @param lines        Lines to be written
+   * @param writter      The file's bufferwritter
    * @return returns if the first line of the file has been written
    */
   private synchronized boolean writeToFile(boolean isFirstLines, List<String> lines, BufferedWriter writter) {
@@ -150,7 +153,7 @@ public class Subscriber {
     } catch (IOException e) {
       LOGGER.severe("unable to load subscription from file" + id);
     }
-    LOGGER.info("Restoring subscription with queue size   :" + messages.size());
+    LOGGER.info("Restoring subscription with queue size  :" + messages.size());
     return new Subscriber(id, new LinkedBlockingQueue<>(messages));
   }
 }

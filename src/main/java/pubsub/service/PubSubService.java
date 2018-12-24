@@ -14,6 +14,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 
+import com.google.common.collect.Maps;
+
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
@@ -39,9 +41,20 @@ public class PubSubService {
 
   public PubSubService() {
     this.publishersById = new HashMap<String, Publisher>();
-    this.subscribersTopicMap = getTopicsFromFile();
-    this.subscribersById = new HashMap<>();
+    this.subscribersTopicMap = populateTopicSubscriberMap();
+    this.subscribersById = Maps.newHashMap();
     this.messagesQueue = new LinkedBlockingQueue<Message>();
+
+    populateSubscribers(this.subscribersTopicMap);
+  }
+
+  private void populateSubscribers(Map<String, Set<String>> subscribersTopicMap) {
+    for (Set<String> subscriptionIds : subscribersTopicMap.values()) {
+      for (String subscriptionId : subscriptionIds) {
+        this.subscribersById.put(subscriptionId, getSubscriberById(subscriptionId));
+      }
+    }
+    LOGGER.info("Loaded subscriptions " + subscribersById.size());
   }
 
   public void addPublisher(Publisher publisher) {
@@ -51,7 +64,7 @@ public class PubSubService {
 
   // Adds message sent by publisher to queue
   public void addMessageToQueue(Message message) {
-    LOGGER.info("Adding message to topic " + message.getPayload()+" -- "+ message.getTopic());
+    LOGGER.info("Adding message to topic " + message.getPayload() + " -- " + message.getTopic());
     messagesQueue.add(message);
     LOGGER.info("Message added. Length of queue is " + messagesQueue.size());
   }
@@ -83,7 +96,7 @@ public class PubSubService {
     }
   }
 
-  private Map<String, Set<String>> getTopicsFromFile() {
+  private Map<String, Set<String>> populateTopicSubscriberMap() {
 
     HashMap<String, Set<String>> subscribersTopicMap;
     try {
@@ -129,6 +142,7 @@ public class PubSubService {
   }
 
   public Subscriber getSubscriberById(String id) {
+
     Subscriber subscriber = subscribersById.get(id);
     if (subscriber == null) {
       LOGGER.warning("Subscriber not found in memory , trying to local from file");
