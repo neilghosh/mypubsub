@@ -4,6 +4,10 @@
     border: 1px solid black;
     border-collapse: collapse;
   }
+  th {
+    background-color: grey;
+    color: white;
+  }
   th, td {
     padding: 5px;
     text-align: left;
@@ -21,6 +25,24 @@
     display: table;
     clear: both;
   }
+  input[type=text] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    box-sizing: border-box;
+  }
+  input[type=submit] {
+    background-color: gray;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+  }
   </style>
 </head>
 
@@ -30,16 +52,18 @@
   <div style="text-align: center" id="responseArea"></div>
   <div class="row">
     <div class="column">
-      <label for="publisher_topics">Topic</label>
+      <label for="publisher_topics">Topics</label>
       <input id="publisher_topics" type="text" value="topic1,topic2">
       <input type="submit" value="Register Publisher" onclick="registerPublisher()">
       <br>
       <!-- <label for="publisher_id">Publisher Id</label>
       <input id="publisher_id" type="text" value=""> -->
-      <label for="message">Message</label>
-      <input id="message" size="100"  type="text" value="message1">
+
       <!-- <input type="submit" value="Publish" onclick="publish(document.getElementById('publisher_id').value)"> -->
+
       <hr>
+      <label for="message">Message</label>
+      <input id="message" size="100" type="text" value="message1">
       <table id="publishers">
         <caption>Registered Publishers</caption>
         <tr>
@@ -122,7 +146,7 @@
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
           //alert(xhr.response);
-          document.getElementById('responseArea').innerHTML = 'Pulled Messages<br>'+xhr.response;
+          document.getElementById('responseArea').innerHTML = 'Pulled Messages<br>' + xhr.response;
         }
       }
       //var subscription_id = document.getElementById('subscription').value;
