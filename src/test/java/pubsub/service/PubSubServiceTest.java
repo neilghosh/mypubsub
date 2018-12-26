@@ -39,7 +39,7 @@ public class PubSubServiceTest {
   }
 
   @Test
-  public void addPublisherTest() {
+  public void testAddPublisher() {
     Publisher publisher = new Publisher(Sets.newHashSet());
 
     testPubsubService.addPublisher(publisher);
@@ -48,7 +48,7 @@ public class PubSubServiceTest {
   }
 
   @Test
-  public void addMessageToQueueTest() {
+  public void testAddMessageToQueue() {
     Message message = new Message("someTopic", "someMessage");
 
     testPubsubService.addMessageToQueue(message);
@@ -57,7 +57,7 @@ public class PubSubServiceTest {
   }
 
   @Test
-  public void addSubscriberTest() {
+  public void testAddSubscriber() {
     Subscriber subscriber = new Subscriber("someSubscriber",
         new LinkedBlockingQueue<Message>(Lists.newArrayList(new Message("someTopic", "someMessage"))),
         subscriberRepository);
@@ -69,7 +69,7 @@ public class PubSubServiceTest {
   }
 
   @Test
-  public void broadcastTest() {
+  public void testBroadcast() {
     // Add a subscriber
     Subscriber subscriber = new Subscriber(subscriberRepository);
     testPubsubService.addSubscriber("someTopic", subscriber);

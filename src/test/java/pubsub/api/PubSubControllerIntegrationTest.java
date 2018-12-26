@@ -77,14 +77,13 @@ public class PubSubControllerIntegrationTest {
   }
 
   @Test
-  public void testPull() throws Exception {
+  public void testPullMessages() throws Exception {
     // Register a publisher
     String publisherId = mockMvc
         .perform(post("/registerPublisher").content("[\"topic1\",\"topic2\"]").contentType(MediaType.APPLICATION_JSON))
         .andReturn().getResponse().getContentAsString();
 
     // Register a subscriber
-
     String subscriptionId = mockMvc
         .perform(post("/subscribe").content("[\"topic1\",\"topic2\"]").contentType(MediaType.APPLICATION_JSON))
         .andReturn().getResponse().getContentAsString();

@@ -31,7 +31,7 @@ public class SubscriberTest {
   }
 
   @Test
-  public void addToSubscriberMessagesTest() {
+  public void testAddToSubscriberMessages() {
     Message message = new Message("someTopic", "someMessage");
 
     testSubscriber.addToSubscriberMessages(message);
@@ -40,14 +40,14 @@ public class SubscriberTest {
   }
 
   @Test
-  public void addSubscriberTest() {
+  public void testAddSubscriber() {
     testSubscriber.addSubscriber("someTopic", mockPubSubService);
 
     verify(mockPubSubService).addSubscriber("someTopic", testSubscriber);
   }
 
   @Test
-  public void pullSubscriberMessagesTest() {
+  public void testPullSubscriberMessages() {
     Message testMessage = new Message("someTopic", "someMessage");
     testSubscriber.addToSubscriberMessages(testMessage);
 

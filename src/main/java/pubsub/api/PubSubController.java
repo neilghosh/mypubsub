@@ -66,7 +66,7 @@ public class PubSubController {
    * @return
    */
   @RequestMapping("{subscriberId}/pull")
-  public String[] pull(@PathVariable("subscriberId") String subscriberId) {
+  public String[] pullMessages(@PathVariable("subscriberId") String subscriberId) {
     Subscriber subscriber = pubSubService.getSubscriberById(subscriberId);
     List<Message> pubSubMessages = subscriber.pullSubscriberMessages();
     List<String> messages = Lists.newArrayList();
