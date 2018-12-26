@@ -11,10 +11,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 
 public class FileUtility {
@@ -85,5 +82,19 @@ public class FileUtility {
       LOGGER.severe("Unable to load topic mappings " + e.getMessage());
     }
     return object;
+  }
+
+  public static void cleanData() {
+    LOGGER.info("Test directory --- " + new File("data").getAbsolutePath());
+    // Remove all test data
+    try {
+      for (File file : new File("data").listFiles()) {
+        if (!file.getName().startsWith(".")) {
+          file.delete();
+        }
+      }
+    } catch (Exception e) {
+      LOGGER.severe("Unable to clean " + new File("data").getAbsolutePath());
+    }
   }
 }

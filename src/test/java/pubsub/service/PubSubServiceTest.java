@@ -22,20 +22,21 @@ import pubsub.persistenace.PubSubServiceRepository;
 import pubsub.persistenace.SubscriberRepository;
 import pubsub.publisher.Publisher;
 import pubsub.subscriber.Subscriber;
+import util.FileUtility;
 
 public class PubSubServiceTest {
 
   private final static Logger LOGGER = Logger.getLogger(Subscriber.class.getName());
 
   PubSubServiceRepository mockPubSubServiceRepository = mock(PubSubServiceRepository.class);
-  SubscriberRepository subscriberRepository = mock(SubscriberRepository.class);
+  SubscriberRepository mockSubscriberRepository = mock(SubscriberRepository.class);
 
   PubSubService testPubsubService;
 
   @Before
   public void setup() {
-    cleanData();
-    testPubsubService = new PubSubService(new PubSubServiceRepository());
+    //FileUtility.cleanData();
+    testPubsubService = new PubSubService(mockPubSubServiceRepository);
   }
 
   @Test
@@ -60,7 +61,7 @@ public class PubSubServiceTest {
   public void testAddSubscriber() {
     Subscriber subscriber = new Subscriber("someSubscriber",
         new LinkedBlockingQueue<Message>(Lists.newArrayList(new Message("someTopic", "someMessage"))),
-        subscriberRepository);
+        mockSubscriberRepository);
 
     testPubsubService.addSubscriber("someTopic", subscriber);
 
@@ -71,7 +72,7 @@ public class PubSubServiceTest {
   @Test
   public void testBroadcast() {
     // Add a subscriber
-    Subscriber subscriber = new Subscriber(subscriberRepository);
+    Subscriber subscriber = new Subscriber(mockSubscriberRepository);
     testPubsubService.addSubscriber("someTopic", subscriber);
 
     // Add a message
@@ -85,20 +86,6 @@ public class PubSubServiceTest {
 
   @After
   public void tearDown() {
-    cleanData();
-  }
-
-  private void cleanData() {
-    LOGGER.info("Test directory --- " + new File("data").getAbsolutePath());
-    // Remove all test data
-    try {
-      for (File file : new File("data").listFiles()) {
-        if (!file.getName().startsWith(".")) {
-          file.delete();
-        }
-      }
-    } catch (Exception e) {
-      LOGGER.severe("Unable to clean " + new File("data").getAbsolutePath());
-    }
+    //FileUtility.cleanData();
   }
 }
