@@ -24,7 +24,6 @@ public class SubscriberTest {
   private PubSubService mockPubSubService = mock(PubSubService.class);
   private SubscriberRepository mockSubscriptionRepository = mock(SubscriberRepository.class);
 
-
   @Before
   public void setup() {
     testSubscriber = new Subscriber(mockSubscriptionRepository);

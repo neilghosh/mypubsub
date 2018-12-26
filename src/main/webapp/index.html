@@ -78,10 +78,12 @@
       <input id="topics" type="text" value="topic1,topic2">
       <input type="submit" value="Subscribe" onclick="subscribe()">
       <br>
-      <!-- <label for="subscription">Subscription Id</label>
-      <input id="subscription" type="text" value="">
-      <input type="submit" value="Pull Messages" onclick="pull(document.getElementById('subscription').value)"> -->
+
       <hr>
+      <label for="subscription">Subscription Id</label>
+      <br>
+      <input id="subscription" style="width: 50%;"  type="text" value="">
+      <input type="submit" value="Pull Old Messages" onclick="pull(document.getElementById('subscription').value)">
       <table id="subscribers">
         <caption>Registered Subscribers</caption>
         <tr>

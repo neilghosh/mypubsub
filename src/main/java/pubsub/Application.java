@@ -1,5 +1,7 @@
 package pubsub;
 
+import java.util.logging.Logger;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,6 +13,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableAsync
 public class Application {
 
+  private final static Logger LOGGER = Logger.getLogger(Application.class.getName());
+
   public static void main(String[] args) {
     SpringApplication.run(Application.class, args);
   }
@@ -18,7 +22,7 @@ public class Application {
   @Bean
   public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
     return args -> {
-      System.out.println("Starting Pubsub server");
+      LOGGER.info("Starting Pubsub server ...");
     };
   }
 }

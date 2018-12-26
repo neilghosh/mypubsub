@@ -1,10 +1,5 @@
 package pubsub.service;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -90,10 +85,6 @@ public class PubSubService {
     repository.persistsTopicSubscriptionMappings(this.subscribersTopicMap);
   }
 
-
-
-
-
   // Asynchrounously broadcast new messages added in queue to All subscribers of
   // the topic.
   // messagesQueue will be empty after broadcasting
@@ -139,7 +130,7 @@ public class PubSubService {
     return publishersById.get(publisherId);
   }
 
-  BlockingQueue<Message> getMessageQueue(){
+  BlockingQueue<Message> getMessageQueue() {
     return this.messagesQueue;
   }
 
