@@ -7,7 +7,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -16,18 +15,20 @@ import java.util.logging.Logger;
 
 import com.google.common.collect.Maps;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import pubsub.Message;
+import pubsub.persistenace.PubSubServiceRepository;
 import pubsub.publisher.Publisher;
 import pubsub.subscriber.Subscriber;
 
 @Component
 public class PubSubService {
   private final static Logger LOGGER = Logger.getLogger(PubSubService.class.getName());
-  public static final String TOPICS_DATA_FILE = "data/topics.ser";
 
+  PubSubServiceRepository repository;
   // Keeps publisher to toipics mapping
   Map<String, Publisher> publishersById;
 
@@ -39,9 +40,12 @@ public class PubSubService {
   // Holds messages published by publishers
   BlockingQueue<Message> messagesQueue;
 
-  public PubSubService() {
+  @Autowired
+  public PubSubService(PubSubServiceRepository repository) {
+
+    this.repository = repository;
     this.publishersById = new HashMap<String, Publisher>();
-    this.subscribersTopicMap = populateTopicSubscriberMap();
+    this.subscribersTopicMap = repository.populateTopicSubscriberMap();
     this.subscribersById = Maps.newHashMap();
     this.messagesQueue = new LinkedBlockingQueue<Message>();
 
@@ -83,33 +87,12 @@ public class PubSubService {
       subscriberIds.add(subscriber.getSubscriberId());
       subscribersTopicMap.put(topic, subscriberIds);
     }
-    persistsTopicSubscriptionMappings();
+    repository.persistsTopicSubscriptionMappings(this.subscribersTopicMap);
   }
 
-  private void persistsTopicSubscriptionMappings() {
-    try {
-      ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(TOPICS_DATA_FILE));
-      stream.writeObject(subscribersTopicMap);
-      stream.close();
-    } catch (IOException e) {
-      LOGGER.severe("Unable to persist topic mappings " + e.getMessage());
-    }
-  }
 
-  private Map<String, Set<String>> populateTopicSubscriberMap() {
 
-    HashMap<String, Set<String>> subscribersTopicMap;
-    try {
-      ObjectInputStream stream = new ObjectInputStream(new FileInputStream(TOPICS_DATA_FILE));
-      subscribersTopicMap = (HashMap<String, Set<String>>) stream.readObject();
-      stream.close();
-      LOGGER.info("Found Topics " + subscribersTopicMap.size());
-    } catch (IOException | ClassNotFoundException e) {
-      LOGGER.severe("Unable to load topic mappings " + e.getMessage());
-      return new HashMap<String, Set<String>>();
-    }
-    return subscribersTopicMap;
-  }
+
 
   // Asynchrounously broadcast new messages added in queue to All subscribers of
   // the topic.
@@ -154,5 +137,13 @@ public class PubSubService {
 
   public Publisher getPublisherById(String publisherId) {
     return publishersById.get(publisherId);
+  }
+
+  BlockingQueue<Message> getMessageQueue(){
+    return this.messagesQueue;
+  }
+
+  Map<String, Set<String>> getSubscribersTopicMap() {
+    return this.subscribersTopicMap;
   }
 }

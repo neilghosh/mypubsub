@@ -2,9 +2,11 @@ package pubsub.subscriber;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
@@ -20,8 +22,9 @@ import pubsub.service.PubSubService;
 public class Subscriber {
   private final static Logger LOGGER = Logger.getLogger(Subscriber.class.getName());
 
-  public static final String MESSAGE_LOG_PREFIX = "data/messageLog-";
-  public static final String ACK_LOG_PREFIX = "data/ackLog-";
+  public static final String DATA_DIR = "data";
+  public static final String MESSAGE_LOG_PREFIX = DATA_DIR+File.separator+"messageLog-";
+  public static final String ACK_LOG_PREFIX = DATA_DIR+File.separator+"ackLog-";
 
   private BlockingQueue<Message> subscriberMessages;
 
@@ -49,6 +52,10 @@ public class Subscriber {
     // Used for markking the 1st line of file in which case new line is not required
     this.firstAckLine = this.firstMessageLine = messages.size() == 0;
     try {
+      File file = new File(DATA_DIR);
+      if(!file.exists()) {
+        file.mkdir();
+      }
       messageLog = new BufferedWriter(new FileWriter(MESSAGE_LOG_PREFIX + this.subscriberId, true));
       ackLog = new BufferedWriter(new FileWriter(ACK_LOG_PREFIX + this.subscriberId, true));
     } catch (IOException e) {
@@ -58,6 +65,10 @@ public class Subscriber {
 
   public String getSubscriberId() {
     return this.subscriberId;
+  }
+
+  public BlockingQueue<Message> getSubscriberMessages() {
+    return this.subscriberMessages;
   }
 
   public boolean addToSubscriberMessages(Message message) {
