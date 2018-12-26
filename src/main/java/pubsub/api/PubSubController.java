@@ -3,6 +3,7 @@ package pubsub.api;
 import org.springframework.web.bind.annotation.RestController;
 
 import pubsub.Message;
+import pubsub.persistenace.SubscriberRepository;
 import pubsub.publisher.Publisher;
 import pubsub.service.PubSubService;
 import pubsub.subscriber.Subscriber;
@@ -52,7 +53,7 @@ public class PubSubController {
    */
   @RequestMapping(value = "/subscribe", method = RequestMethod.POST)
   public String subscribe(@RequestBody String[] topics) {
-    Subscriber subscriber = new Subscriber();
+    Subscriber subscriber = new Subscriber(new SubscriberRepository());
     for (String topic : topics) {
       subscriber.addSubscriber(topic, pubSubService);
     }

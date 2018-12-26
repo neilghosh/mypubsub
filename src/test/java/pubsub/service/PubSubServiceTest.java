@@ -7,6 +7,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 
@@ -19,6 +20,7 @@ import org.junit.Test;
 
 import pubsub.Message;
 import pubsub.persistenace.PubSubServiceRepository;
+import pubsub.persistenace.SubscriberRepository;
 import pubsub.publisher.Publisher;
 import pubsub.subscriber.Subscriber;
 
@@ -26,7 +28,9 @@ public class PubSubServiceTest {
 
   private final static Logger LOGGER = Logger.getLogger(Subscriber.class.getName());
 
-  PubSubServiceRepository mockPubSubServiceRepository = mock(PubSubServiceRepository.class);;
+  PubSubServiceRepository mockPubSubServiceRepository = mock(PubSubServiceRepository.class);
+  SubscriberRepository subscriberRepository = mock(SubscriberRepository.class);
+
   PubSubService testPubsubService;
 
   @Before
@@ -56,7 +60,8 @@ public class PubSubServiceTest {
   @Test
   public void addSubscriberTest() {
     Subscriber subscriber = new Subscriber("someSubscriber",
-        new LinkedBlockingQueue<Message>(Lists.newArrayList(new Message("someTopic", "someMessage"))));
+        new LinkedBlockingQueue<Message>(Lists.newArrayList(new Message("someTopic", "someMessage"))),
+        subscriberRepository);
 
     testPubsubService.addSubscriber("someTopic", subscriber);
 
@@ -67,7 +72,7 @@ public class PubSubServiceTest {
   @Test
   public void broadcastTest() {
     // Add a subscriber
-    Subscriber subscriber = new Subscriber();
+    Subscriber subscriber = new Subscriber(subscriberRepository);
     testPubsubService.addSubscriber("someTopic", subscriber);
 
     // Add a message
@@ -87,10 +92,14 @@ public class PubSubServiceTest {
   private void cleanData() {
     LOGGER.info("Test directory --- " + new File("data").getAbsolutePath());
     // Remove all test data
-    for (File file : new File("data").listFiles()) {
-      if (!file.getName().startsWith(".")) {
-        file.delete();
+    try {
+      for (File file : new File("data").listFiles()) {
+        if (!file.getName().startsWith(".")) {
+          file.delete();
+        }
       }
+    } catch (Exception e) {
+      LOGGER.severe("Unable to clean " + new File("data").getAbsolutePath());
     }
   }
 }

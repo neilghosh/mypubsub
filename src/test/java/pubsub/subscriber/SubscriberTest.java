@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import pubsub.Message;
+import pubsub.persistenace.SubscriberRepository;
 import pubsub.service.PubSubService;
 
 public class SubscriberTest {
@@ -21,10 +22,12 @@ public class SubscriberTest {
   private Subscriber testSubscriber;
 
   private PubSubService mockPubSubService = mock(PubSubService.class);
+  private SubscriberRepository mockSubscriptionRepository = mock(SubscriberRepository.class);
+
 
   @Before
   public void setup() {
-    testSubscriber = new Subscriber();
+    testSubscriber = new Subscriber(mockSubscriptionRepository);
   }
 
   @Test

@@ -127,6 +127,6 @@ public class SubscriberRepository {
       LOGGER.severe("unable to load subscription from file" + id);
     }
     LOGGER.info("Restoring subscription with queue size  :" + messages.size());
-    return new Subscriber(id, new LinkedBlockingQueue<>(messages));
+    return new Subscriber(id, new LinkedBlockingQueue<>(messages), new SubscriberRepository());
   }
 }

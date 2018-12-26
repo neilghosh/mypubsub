@@ -20,12 +20,12 @@ public class Subscriber {
   private BlockingQueue<Message> subscriberMessages;
   private String subscriberId;
 
-  public Subscriber() {
-    this(UUID.randomUUID().toString(), new LinkedBlockingQueue<Message>());
+  public Subscriber(SubscriberRepository subscriptionRepository) {
+    this(UUID.randomUUID().toString(), new LinkedBlockingQueue<Message>(), subscriptionRepository);
   }
 
-  public Subscriber(String id, BlockingQueue<Message> messages) {
-    this.subscriberRepository = new SubscriberRepository();
+  public Subscriber(String id, BlockingQueue<Message> messages, SubscriberRepository subscriberRepository) {
+    this.subscriberRepository = subscriberRepository;
     this.subscriberId = id;
     this.subscriberMessages = messages;
     this.subscriberRepository.initializepPersistance(id, messages);
