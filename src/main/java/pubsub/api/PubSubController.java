@@ -8,7 +8,6 @@ import pubsub.publisher.Publisher;
 import pubsub.service.PubSubService;
 import pubsub.subscriber.Subscriber;
 
-import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -43,7 +42,7 @@ public class PubSubController {
       Message pubSubMessage = new Message(topic, message);
       publisher.publish(pubSubMessage, pubSubService);
     }
-    return "Published messages to " + message;
+    return message;
   }
 
   /**

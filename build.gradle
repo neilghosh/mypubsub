@@ -33,6 +33,8 @@ dependencies {
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.1.0'
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+
 }
 
 // In this section you declare where to find the dependencies of your project

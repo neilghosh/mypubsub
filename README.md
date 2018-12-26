@@ -36,7 +36,7 @@ curl localhost:8080/b0c915f6-b45d-454d-9da6-ec70442d246c/pull
 ![](Demo.gif)
 
 ## TODO
-1. Add publish to multiple topic from single publisher
-2. Push subscriptions
-3. UI
-4. Tests
+1. Push overflowing pending messages to persistence.
+2. Concurrrency tests.
+3. Push subscriptions.
+ 
