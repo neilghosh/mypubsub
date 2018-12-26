@@ -30,6 +30,7 @@
     padding: 12px 20px;
     margin: 8px 0;
     box-sizing: border-box;
+    font-size: large
   }
   input[type=submit] {
     background-color: gray;
@@ -82,7 +83,7 @@
       <hr>
       <label for="subscription">Subscription Id</label>
       <br>
-      <input id="subscription" style="width: 50%;"  type="text" value="">
+      <input id="subscription" style="width: 60%;"  type="text" value="">
       <input type="submit" value="Pull Old Messages" onclick="pull(document.getElementById('subscription').value)">
       <table id="subscribers">
         <caption>Registered Subscribers</caption>
