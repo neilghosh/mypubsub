@@ -129,7 +129,7 @@ public class PubSubService {
     Subscriber subscriber = subscribersById.get(id);
     if (subscriber == null) {
       LOGGER.warning("Subscriber not found in memory , trying to local from file");
-      subscriber = Subscriber.loadFromFile(id);
+      subscriber = Subscriber.restore(id);
       subscribersById.put(id, subscriber);
     }
     return subscriber;

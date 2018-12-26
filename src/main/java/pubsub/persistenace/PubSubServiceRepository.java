@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 public class PubSubServiceRepository {
   private final static Logger LOGGER = Logger.getLogger(PubSubServiceRepository.class.getName());
 
-  public static final String TOPICS_DATA_FILE = "data/topics.ser";
+  private static final String TOPICS_DATA_FILE = "data/topics.ser";
 
   public void persistsTopicSubscriptionMappings(Map<String, Set<String>>  subscribersTopicMap) {
     try {
