@@ -7,7 +7,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 

@@ -33,6 +33,8 @@ e.g.
 curl localhost:8080/b0c915f6-b45d-454d-9da6-ec70442d246c/pull
 ```
 
+![](name-of-giphy.gif
+
 ## TODO
 1. Add publish to multiple topic from single publisher
 2. Push subscriptions
