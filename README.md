@@ -14,6 +14,10 @@ http://localhost:8080/
 * Provide comma separated topic names and register a subscriber.
 * Use the publisher id (type 4 UUID) to publish  message.
 * Use the subscriber id (type 4 UUID) to pull messages.
+* If there are any pending messages in subscription which are not pulled yet and server stopped,
+  the messages can be pulled again when server is started again using the subscription id.
+* The server uses the local filesystem "data" directory to persist the messages in the subscription.
+* Files in the "data" can be removed to reset all subscription data.
 
 ## Register Publisher
 Registers the publisher with one one more topics.
