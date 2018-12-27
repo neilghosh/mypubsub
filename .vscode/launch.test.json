@@ -1,0 +1,30 @@
+{
+    "run": {
+        "default": "",
+        "items": [
+            {
+                "name": "mypubsub",
+                "projectName": "mypubsub",
+                "workingDirectory": "/Users/1021449/dev/mypubsub",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            }
+        ]
+    },
+    "debug": {
+        "default": "",
+        "items": [
+            {
+                "name": "mypubsub",
+                "projectName": "mypubsub",
+                "workingDirectory": "/Users/1021449/dev/mypubsub",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            }
+        ]
+    }
+}

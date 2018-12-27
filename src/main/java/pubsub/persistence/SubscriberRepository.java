@@ -1,4 +1,4 @@
-package pubsub.persistenace;
+package pubsub.persistence;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -30,11 +30,10 @@ public class SubscriberRepository {
   private boolean firstAckLine = true;
   private boolean firstMessageLine = true;
 
-  private BufferedWriter messageLog;
-  private BufferedWriter ackLog;
+  private BufferedWriter messageLog; //Stores all the messages received by the subscriber.
+  private BufferedWriter ackLog; //Stores the ids of the messages read so far.
 
   // Sets up the files which backs up the subscription messages and acknowledged
-  // messages
   // which later helps recovering the subscriptions
   public void initializepPersistance(String id, BlockingQueue<Message> messages) {
     // Used for markking the 1st line of file in which case new line is not required
@@ -51,8 +50,7 @@ public class SubscriberRepository {
   }
 
   // Writes a log with acknowledged messages i.e. messages which are read by the
-  // user
-  // So that it can later know the pending messages.
+  // user, so that it can later know the pending messages.
   public synchronized void ackMessages(List<Message> messages) {
     List<String> lines = Lists.newArrayList();
     for (Message message : messages) {
@@ -80,7 +78,8 @@ public class SubscriberRepository {
       LOGGER.info("Last acknowledged message id :" + lastAckMessage);
 
       boolean ackFound = lastAckMessage == null;
-
+      //Run through the message history look for messages after the last acknowledged 
+      //message. 
       while ((currentLine = messageFileReader.readLine()) != null) {
         if (!ackFound) {
           ackFound = currentLine.startsWith(lastAckMessage);
@@ -90,6 +89,8 @@ public class SubscriberRepository {
           messages.add(Message.fromString(currentLine));
         }
       }
+      //TODO This is a leaner search could be more efficient.
+      //TODO Older acked messages can be archived/deleted from both files.
       messageFileReader.close();
     } catch (IOException e) {
       LOGGER.severe("unable to load subscription from file" + id);

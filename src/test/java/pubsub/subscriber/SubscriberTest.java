@@ -12,7 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import pubsub.Message;
-import pubsub.persistenace.SubscriberRepository;
+import pubsub.persistence.SubscriberRepository;
 import pubsub.service.PubSubService;
 
 public class SubscriberTest {

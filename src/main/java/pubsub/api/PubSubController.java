@@ -1,13 +1,5 @@
 package pubsub.api;
 
-import org.springframework.web.bind.annotation.RestController;
-
-import pubsub.Message;
-import pubsub.persistenace.SubscriberRepository;
-import pubsub.publisher.Publisher;
-import pubsub.service.PubSubService;
-import pubsub.subscriber.Subscriber;
-
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -18,13 +10,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import pubsub.Message;
+import pubsub.persistence.SubscriberRepository;
+import pubsub.publisher.Publisher;
+import pubsub.service.PubSubService;
+import pubsub.subscriber.Subscriber;
 
 @RestController
 public class PubSubController {
 
   @Autowired
   PubSubService pubSubService;
-
 
   @RequestMapping(value = "/registerPublisher", method = RequestMethod.POST)
   public String addPublisher(@RequestBody String[] topics) {

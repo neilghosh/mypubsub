@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 import com.google.common.collect.Lists;
 
 import pubsub.Message;
-import pubsub.persistenace.SubscriberRepository;
+import pubsub.persistence.SubscriberRepository;
 import pubsub.service.PubSubService;
 
 public class Subscriber {

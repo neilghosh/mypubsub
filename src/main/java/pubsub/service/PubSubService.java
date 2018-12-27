@@ -15,7 +15,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import pubsub.Message;
-import pubsub.persistenace.PubSubServiceRepository;
+import pubsub.persistence.PubSubServiceRepository;
 import pubsub.publisher.Publisher;
 import pubsub.subscriber.Subscriber;
 
@@ -86,8 +86,7 @@ public class PubSubService {
   }
 
   // Asynchrounously broadcast new messages added in queue to All subscribers of
-  // the topic.
-  // messagesQueue will be empty after broadcasting
+  // the topic. messagesQueue will be empty after broadcasting
   @Async
   public void broadcast() {
     LOGGER.info("Broadcasting messages to subscriptions");
@@ -119,7 +118,7 @@ public class PubSubService {
 
     Subscriber subscriber = subscribersById.get(id);
     if (subscriber == null) {
-      LOGGER.warning("Subscriber not found in memory , trying to local from file");
+      LOGGER.warning("Subscriber not found in memory , trying to fetch from persistence");
       subscriber = Subscriber.restore(id);
       subscribersById.put(id, subscriber);
     }

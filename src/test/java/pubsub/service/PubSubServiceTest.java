@@ -18,11 +18,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import pubsub.Message;
-import pubsub.persistenace.PubSubServiceRepository;
-import pubsub.persistenace.SubscriberRepository;
+import pubsub.persistence.PubSubServiceRepository;
+import pubsub.persistence.SubscriberRepository;
 import pubsub.publisher.Publisher;
 import pubsub.subscriber.Subscriber;
-import util.FileUtility;
 
 public class PubSubServiceTest {
 
