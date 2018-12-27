@@ -1,11 +1,10 @@
 package pubsub.subscriber;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 import org.jboss.logging.Logger;
 import org.junit.Before;

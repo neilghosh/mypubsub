@@ -5,6 +5,16 @@
 ```
 ./gradlew clean build && java -jar build/libs/mypubsub-0.1.0.jar
 ```
+
+## Usage
+The following UI can be used for testing the UI
+http://localhost:8080/
+
+* Provide comma separated topic names and register a publisher.
+* Provide comma separated topic names and register a subscriber.
+* Use the publisher id (type 4 UUID) to publish  message.
+* Use the subscriber id (type 4 UUID) to pull messages.
+
 ## Register Publisher
 Registers the publisher with one one more topics.
 
