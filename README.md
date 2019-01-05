@@ -1,5 +1,5 @@
 # mypubsub
-
+[![Build Status](https://travis-ci.com/neilghosh/mypubsub.svg?branch=master)](https://travis-ci.com/neilghosh/mypubsub)
 ## Run Server 
 
 ```
