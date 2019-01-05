@@ -9,12 +9,14 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
 
+import java.util.logging.Logger;
+
 @SpringBootApplication
 @EnableAsync
 public class Application {
 
-  private final static Logger LOGGER = Logger.getLogger(Application.class.getName());
-
+  private static final Logger LOGGER = Logger.getLogger(Application.class.getName());
+  
   public static void main(String[] args) {
     SpringApplication.run(Application.class, args);
   }
